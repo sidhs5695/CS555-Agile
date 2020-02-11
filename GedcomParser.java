@@ -33,6 +33,7 @@ public class GedcomParser {
     Boolean divorced = false;
     Indi Indiobj = null;
     Fami Famobj = null;
+    String birthday;
 
 
     private static class Indi {
@@ -425,7 +426,7 @@ public class GedcomParser {
 
     private void process(String line) {
 
-        System.out.println("--> " + line);
+     //   System.out.println("--> " + line);
         String[] splits;
         String valid = "N";
         String output;
@@ -447,10 +448,10 @@ public class GedcomParser {
                     try {
                         this.createID("", splits[1]);
                     } catch (ParseException qe) {
-                        System.out.println("Parse issue");
+                        System.out.println("Parse issue"+qe+" "+splits);
                     }
                 } catch (ParseException e) {
-                    System.out.println("Parse issue");
+                    System.out.println("Parse issue"+e+" "+splits);
                 }
 
             } else {
@@ -504,6 +505,7 @@ public class GedcomParser {
         if (birt) {
             birt = false;
             Indiobj.setBday(value);
+            birthday = value;
             SimpleDateFormat f = new SimpleDateFormat("dd MMM yyyy");
             Date d = f.parse(value);
             Date c = new Date();
@@ -523,8 +525,8 @@ public class GedcomParser {
             Indiobj.setDeathDay(value);
             SimpleDateFormat f = new SimpleDateFormat("dd MMM yyyy");
             Date d = f.parse(value);
-            String bday = Indiobj.getBday();
-            Date c = f.parse(bday);
+//            birthday = Indiobj.getBday();
+            Date c = f.parse(birthday);
             long diffM = Math.abs(c.getTime() - d.getTime());
             long diff = TimeUnit.DAYS.convert(diffM, TimeUnit.MILLISECONDS);
             int years = (int) diff / 365;
@@ -550,22 +552,18 @@ public class GedcomParser {
             Famobj.sethID(value);
             Indi x = (Indi) Individual.get(value);
             Famobj.sethName(x.getName());
-            // System.out.println(" ddsd Husband name....********"+x.getName());
-
         }
-        ;
+
 
         if (tag.equals("WIFE")) {
             Famobj.setwID(value);
             Indi x = (Indi) Individual.get(value);
             Famobj.setwName(x.getName());
         }
-        ;
 
         if (tag.equals("CHIL")) {
             Famobj.setcSet(value);
         }
-        ;
 
         if (married) {
             married = false;
@@ -575,7 +573,6 @@ public class GedcomParser {
         if (tag.equals("MARR")) {
             married = true;
         }
-        ;
 
         if (divorced) {
             divorced = false;
@@ -594,7 +591,13 @@ public class GedcomParser {
         JFrame f = new JFrame();
         JTable tb1 = new JTable();
         DefaultTableModel dtm = new DefaultTableModel(0, 0);
+        String align = "| %-7s | %-21s | %-8s | %-11s | %-5s | %-7s | %-11s | %-10s | %-20s|%n";
         String[] columnNames = {"ID", "Name", "Gender", "BirthDay", "Age", "Alive", "Death", "Child", "Spouse"};
+        System.out.format("############################################## INDIVIDUAL TABLE ###############################################################%n");
+        System.out.format("+---------+-----------------------+----------+-------------+-------+---------+-------------+------------+---------------------+%n");
+        System.out.format("+ ID      | Name                  | Gender   | BirthDay    | Age   | Alive   |   Death     | Child      | Spouse              +%n");
+        System.out.format("+---------+-----------------------+----------+-------------+-------+---------+-------------+------------+---------------------+%n");
+       // TableList 7,21,8,11,5,7,11,10,20
         dtm.setColumnIdentifiers(columnNames);
         tb1.setModel(dtm);
 
@@ -603,14 +606,18 @@ public class GedcomParser {
             Indi x = (Indi) mapElement.getValue();
             if (x.getSpouse().isEmpty()) {
                 String str1 = "NA";
-                Object[] InsertData = {key, x.getName(), x.getGender(), x.getBday(), x.getAge(), x.getAlive(), x.getDeath(), x.getChild(), str1};
-                dtm.addRow(InsertData);
+               Object[] InsertData = {key, x.getName(), x.getGender(), x.getBday(), x.getAge(), x.getAlive(), x.getDeath(), x.getChild(), str1};
+                System.out.format(align,key,x.getName(),x.getGender(),x.getBday(),x.getAge(),x.getAlive(),x.getDeath(),x.getChild(),str1);
+               dtm.addRow(InsertData);
             } else {
                 Object[] InsertData = {key, x.getName(), x.getGender(), x.getBday(), x.getAge(), x.getAlive(), x.getDeath(), x.getChild(), x.getSpouse()};
+                System.out.format(align,key,x.getName(),x.getGender(),x.getBday(),x.getAge(),x.getAlive(),x.getDeath(),x.getChild(),x.getSpouse());
                 dtm.addRow(InsertData);
             }
 
         }
+        System.out.format("+---------+-----------------------+----------+-------------+-------+---------+-------------+------------+---------------------+%n");
+        System.out.println();
         tb1.setBounds(30, 40, 200, 300);
         JScrollPane sp = new JScrollPane(tb1);
         f.add(sp);
@@ -623,19 +630,26 @@ public class GedcomParser {
         JFrame f = new JFrame();
         JTable tb1 = new JTable();
         DefaultTableModel dtm = new DefaultTableModel(0, 0);
+        String align = "| %-7s | %-10s | %-10s | %-10s | %-21s | %-7s | %-21s | %-21s |%n";
+     //   String[] columnNames = {"ID", "Name", "Gender", "BirthDay", "Age", "Alive", "Death", "Child", "Spouse"};
+        System.out.format("##################################################### FAMILY TABLE #################################################################%n");
+        System.out.format("+---------+------------+------------+------------+-----------------------+---------+-----------------------+-----------------------+%n");
+        System.out.format("+ ID      | Married    | Divorced   | Husband ID | Husband Name          | Wife ID |   Wife Name           | Children              +%n");
+        System.out.format("+---------+------------+------------+------------+-----------------------+---------+-----------------------+-----------------------+%n");
+
         String[] columnNames = {"ID", "Married", "Divorced", "Husband ID", "Husband Name", "Wife ID", "Wife Name", "Children"};
         dtm.setColumnIdentifiers(columnNames);
         tb1.setModel(dtm);
 
         for (Map.Entry mapElement : Family.entrySet()) {
             String key = (String) mapElement.getKey();
-            //  System.out.println(" ddsd"+key);
             Fami x = (Fami) mapElement.getValue();
-            //  System.out.println(x);
+            System.out.format(align,key, x.getMarried(), x.getDivorced(), x.gethID(), x.gethName(), x.getwID(), x.getwName(), x.getcSet());
             Object[] InsertData = {key, x.getMarried(), x.getDivorced(), x.gethID(), x.gethName(), x.getwID(), x.getwName(), x.getcSet()};
             dtm.addRow(InsertData);
 
         }
+        System.out.format("+---------+------------+------------+------------+-----------------------+---------+-----------------------+-----------------------+%n");
         tb1.setBounds(30, 40, 200, 300);
         JScrollPane sp = new JScrollPane(tb1);
         f.add(sp);
