@@ -85,14 +85,15 @@ public class GedcomParser {
             return gender;
         }
 
-        public String getBday() {
+        public Date getBday() {
 
-            String birthDay = "NA";
-            if (bday != null) {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                birthDay = formatter.format(bday);
-            }
-            return birthDay;
+//            String birthDay = "NA";
+//            if (bday != null) {
+//                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//                birthDay = formatter.format(bday);
+//            }
+//            return birthDay;
+            return bday;
         }
 
         public String getAge() {
@@ -103,14 +104,15 @@ public class GedcomParser {
             return alive;
         }
 
-        public String getDeath() {
+        public Date getDeath() {
 
-            String deathDay = "NA";
-            if (death != null) {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                deathDay = formatter.format(death);
-            }
-            return deathDay;
+//            String deathDay = "NA";
+//            if (death != null) {
+//                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//                deathDay = formatter.format(death);
+//            }
+//            return deathDay;
+            return death;
 
         }
 
@@ -142,14 +144,16 @@ public class GedcomParser {
             Fid = fid;
         }
 
-        public String getMarried() {
+        public Date getMarried() {
 
-            String marrDate = "NA";
-            if (married != null) {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                marrDate = formatter.format(married);
-            }
-            return marrDate;
+//            String marrDate = "NA";
+//            if (married != null) {
+//                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//                marrDate = formatter.format(married);
+//            }
+//            return marrDate;
+
+            return married;
         }
 
         public void setMarried(Date married) {
@@ -157,14 +161,16 @@ public class GedcomParser {
             this.married = married;
         }
 
-        public String getDivorced() {
+        public Date getDivorced() {
 
-            String divDate = "NA";
-            if (divorced != null) {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                divDate = formatter.format(divorced);
-            }
-            return divDate;
+//            String divDate = "NA";
+//            if (divorced != null) {
+//                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//                divDate = formatter.format(divorced);
+//            }
+//            return divDate;
+
+            return divorced;
         }
 
         public void setDivorced(Date divorced) {
@@ -341,7 +347,7 @@ public class GedcomParser {
             SimpleDateFormat f = new SimpleDateFormat("dd MMM yyyy");
             Date deatDay = f.parse(value);
             Indiobj.setDeathDay(deatDay);
-//            Date birthday = Indiobj.getBday();
+            Date birthday = Indiobj.getBday();
             long diffM = Math.abs(birthday.getTime() - deatDay.getTime());
             long diff = TimeUnit.DAYS.convert(diffM, TimeUnit.MILLISECONDS);
             int years = (int) diff / 365;
@@ -417,11 +423,23 @@ public class GedcomParser {
         for (Map.Entry mapElement : Individual.entrySet()) {
             String key = (String) mapElement.getKey();
             Indi x = (Indi) mapElement.getValue();
+            Date bday = x.getBday();
+            String birthday = "NA";
+            Date dday = x.getDeath();
+            String death = "NA";
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            if(bday != null){
+                birthday = formatter.format(bday);
+            }
+            if(dday != null){
+                death = formatter.format(dday);
+            }
+
             if (x.getSpouse().isEmpty()) {
                 String str1 = "NA";
-                System.out.format(align, key, x.getName(), x.getGender(), x.getBday(), x.getAge(), x.getAlive(), x.getDeath(), x.getChild(), str1);
+                System.out.format(align, key, x.getName(), x.getGender(), birthday, x.getAge(), x.getAlive(), death, x.getChild(), str1);
             } else {
-                System.out.format(align, key, x.getName(), x.getGender(), x.getBday(), x.getAge(), x.getAlive(), x.getDeath(), x.getChild(), x.getSpouse());
+                System.out.format(align, key, x.getName(), x.getGender(), birthday, x.getAge(), x.getAlive(), death, x.getChild(), x.getSpouse());
             }
 
         }
@@ -441,7 +459,19 @@ public class GedcomParser {
         for (Map.Entry mapElement : Family.entrySet()) {
             String key = (String) mapElement.getKey();
             Fami x = (Fami) mapElement.getValue();
-            System.out.format(align, key, x.getMarried(), x.getDivorced(), x.gethID(), x.gethName(), x.getwID(), x.getwName(), x.getcSet());
+            Date mDate = x.getMarried();
+            String marriage = "NA";
+            Date dDate = x.getDivorced();
+            String divorce = "NA";
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            if(mDate != null){
+                marriage = formatter.format(mDate);
+            }
+            if(dDate != null){
+                divorce = formatter.format(dDate);
+            }
+
+            System.out.format(align, key, marriage, divorce, x.gethID(), x.gethName(), x.getwID(), x.getwName(), x.getcSet());
             //   Object[] InsertData = {key, x.getMarried(), x.getDivorced(), x.gethID(), x.gethName(), x.getwID(), x.getwName(), x.getcSet()};
 //            dtm.addRow(InsertData);
 
