@@ -346,12 +346,19 @@ public class GedcomParser {
             deat = false;
             SimpleDateFormat f = new SimpleDateFormat("dd MMM yyyy");
             Date deatDay = f.parse(value);
-            Indiobj.setDeathDay(deatDay);
             Date birthday = Indiobj.getBday();
+            if(deatDay.before(birthday))
+            {
+            	System.out.println("Error: Death before Birth");
+            }
+            else
+            {
+            Indiobj.setDeathDay(deatDay);
             long diffM = Math.abs(birthday.getTime() - deatDay.getTime());
             long diff = TimeUnit.DAYS.convert(diffM, TimeUnit.MILLISECONDS);
             int years = (int) diff / 365;
             Indiobj.setAge("" + years + "");
+            }
         }
 
         if (tag.equals("DEAT")) {
@@ -390,7 +397,25 @@ public class GedcomParser {
             married = false;
             SimpleDateFormat f = new SimpleDateFormat("dd MMM yyyy");
             Date marrDt = f.parse(value);
+            String Hid=Famobj.gethID();
+            Indi husbId=Individual.get(Hid);
+            String Wid=Famobj.getwID();
+            Indi wifeId=Individual.get(Wid);
+            int count=0;
+            if(marrDt.before(husbId.getBday()))
+            {
+            	System.out.println("Error! Husband was born before Marriage");
+            	count++;	
+            }
+            if(marrDt.before(wifeId.getBday()))
+            {
+            	System.out.println("Error! Wife was born before Marriage");
+            	count++;
+            }
+            if(count==0)
+            {
             Famobj.setMarried(marrDt);
+            }
         }
 
         if (tag.equals("MARR")) {
@@ -409,7 +434,6 @@ public class GedcomParser {
         }
 
     }
-
 
     public void showIndiTable() {
 
